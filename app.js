@@ -662,12 +662,152 @@ function runComplianceAgent() {
 }
 
 function runAllAgents() {
-  const result = analyseInteraction(demoInteraction);
+  const output = document.getElementById("agent-output");
 
-  showAgentResult(
-    "Combined VeriQ Analysis",
-    result
-  );
+  if (!output) {
+    return;
+  }
+
+  output.classList.remove("empty-state");
+
+  output.innerHTML = `
+    <div class="agent-pipeline">
+
+      <div class="pipeline-header">
+        <span class="section-label">VERIQ AGENT ORCHESTRATION</span>
+        <h3>Running quality analysis</h3>
+        <p>
+          VeriQ is evaluating the interaction across multiple specialist agents.
+        </p>
+      </div>
+
+      <div class="pipeline-steps">
+
+        <div class="pipeline-step active" id="step-interaction">
+          <div class="pipeline-icon">1</div>
+          <div>
+            <strong>Interaction</strong>
+            <span id="status-interaction">Preparing data...</span>
+          </div>
+        </div>
+
+        <div class="pipeline-line"></div>
+
+        <div class="pipeline-step waiting" id="step-evaluation">
+          <div class="pipeline-icon">2</div>
+          <div>
+            <strong>Evaluation Agent</strong>
+            <span id="status-evaluation">Waiting</span>
+          </div>
+        </div>
+
+        <div class="pipeline-line"></div>
+
+        <div class="pipeline-step waiting" id="step-sop">
+          <div class="pipeline-icon">3</div>
+          <div>
+            <strong>SOP Agent</strong>
+            <span id="status-sop">Waiting</span>
+          </div>
+        </div>
+
+        <div class="pipeline-line"></div>
+
+        <div class="pipeline-step waiting" id="step-compliance">
+          <div class="pipeline-icon">4</div>
+          <div>
+            <strong>Compliance Agent</strong>
+            <span id="status-compliance">Waiting</span>
+          </div>
+        </div>
+
+        <div class="pipeline-line"></div>
+
+        <div class="pipeline-step waiting" id="step-result">
+          <div class="pipeline-icon">5</div>
+          <div>
+            <strong>Combined Analysis</strong>
+            <span id="status-result">Waiting</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pipeline-footer">
+        <div class="processing-dot"></div>
+        <span id="pipeline-message">
+          Preparing interaction for analysis...
+        </span>
+      </div>
+
+    </div>
+  `;
+
+  setTimeout(() => {
+    completeStep(
+      "interaction",
+      "Interaction ready"
+    );
+
+    activateStep(
+      "evaluation",
+      "Evaluating quality criteria...",
+      "Evaluation Agent is reviewing the interaction."
+    );
+  }, 700);
+
+  setTimeout(() => {
+    completeStep(
+      "evaluation",
+      "Evaluation complete"
+    );
+
+    activateStep(
+      "sop",
+      "Checking SOP adherence...",
+      "SOP Agent is validating required process steps."
+    );
+  }, 1800);
+
+  setTimeout(() => {
+    completeStep(
+      "sop",
+      "SOP review complete"
+    );
+
+    activateStep(
+      "compliance",
+      "Checking compliance controls...",
+      "Compliance Agent is reviewing mandatory controls."
+    );
+  }, 2900);
+
+  setTimeout(() => {
+    completeStep(
+      "compliance",
+      "Compliance review complete"
+    );
+
+    activateStep(
+      "result",
+      "Combining agent results...",
+      "VeriQ is consolidating findings and recommendations."
+    );
+  }, 4000);
+
+  setTimeout(() => {
+    completeStep(
+      "result",
+      "Analysis complete"
+    );
+
+    const result = analyseInteraction(demoInteraction);
+
+    showAgentResult(
+      "Combined VeriQ Analysis",
+      result
+    );
+  }, 5200);
 }
 const demoResult = analyseInteraction(demoInteraction);
 
