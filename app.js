@@ -634,6 +634,39 @@ function showAgentResult(title, result) {
   }
 }
 
+function activateStep(stepName, statusText, message) {
+  const step = document.getElementById(`step-${stepName}`);
+  const status = document.getElementById(`status-${stepName}`);
+  const pipelineMessage = document.getElementById("pipeline-message");
+
+  if (step) {
+    step.classList.remove("waiting", "complete");
+    step.classList.add("active");
+  }
+
+  if (status) {
+    status.textContent = statusText;
+  }
+
+  if (pipelineMessage) {
+    pipelineMessage.textContent = message;
+  }
+}
+
+function completeStep(stepName, statusText) {
+  const step = document.getElementById(`step-${stepName}`);
+  const status = document.getElementById(`status-${stepName}`);
+
+  if (step) {
+    step.classList.remove("waiting", "active");
+    step.classList.add("complete");
+  }
+
+  if (status) {
+    status.textContent = statusText;
+  }
+}
+
 function runEvaluationAgent() {
   const result = runEvaluation(demoInteraction);
 
@@ -809,6 +842,7 @@ function runAllAgents() {
     );
   }, 5200);
 }
+
 const demoResult = analyseInteraction(demoInteraction);
 
 console.log("VeriQ Agent Result:", demoResult);
