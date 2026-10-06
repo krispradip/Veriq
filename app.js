@@ -1,3 +1,4 @@
+import { analyseInteraction } from "./agents/agentOrchestrator.js";
 const app = document.getElementById("app");
 
 function topBar() {
@@ -149,3 +150,13 @@ function showAdmin() {
     ]
   );
 }
+const demoInteraction = {
+  id: "INT-1001",
+  channel: "Voice",
+  agent: "Layla Haddad",
+  process: "Refund"
+};
+
+const demoResult = analyseInteraction(demoInteraction);
+
+console.log("VeriQ Agent Result:", demoResult);
