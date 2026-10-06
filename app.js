@@ -160,3 +160,7 @@ const demoInteraction = {
 const demoResult = analyseInteraction(demoInteraction);
 
 console.log("VeriQ Agent Result:", demoResult);
+
+window.showUser = showUser;
+window.showManager = showManager;
+window.showAdmin = showAdmin;
