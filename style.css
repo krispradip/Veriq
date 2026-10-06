@@ -664,3 +664,98 @@ button {
       repeat(2, 1fr);
   }
 }
+
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.score-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.score-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.score-card strong {
+  font-size: 24px;
+  color: var(--brand);
+}
+
+.result-section {
+  margin-top: 24px;
+}
+
+.result-section h4 {
+  margin-bottom: 12px;
+}
+
+.result-section p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.finding-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.finding-row p {
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+.finding-status {
+  height: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.finding-status.pass {
+  background: #e9f6ef;
+  color: #16794c;
+}
+
+.finding-status.fail {
+  background: #fdecec;
+  color: #b42318;
+}
+
+.recommendation-card {
+  margin-top: 24px;
+  padding: 18px;
+  border-radius: 12px;
+  background: var(--soft-pink);
+}
+
+.recommendation-card span {
+  display: block;
+  color: var(--brand-light);
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.recommendation-card strong {
+  font-size: 15px;
+}
+
+@media (max-width: 900px) {
+  .score-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
