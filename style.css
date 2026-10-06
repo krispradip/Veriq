@@ -751,9 +751,9 @@ button {
 /* Agent orchestration animation */
 
 .agent-pipeline {
-  padding: 4px 0;
+  padding: 8px 0 4px;
+  overflow: visible;
 }
-
 .pipeline-header {
   margin-bottom: 28px;
 }
@@ -781,8 +781,10 @@ button {
   margin-bottom: 30px;
 
   overflow-x: auto;
+  overflow-y: visible;
 
-  padding-bottom: 6px;
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 .pipeline-step {
