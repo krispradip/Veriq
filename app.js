@@ -51,7 +51,7 @@ function topBar() {
         </div>
 
         <div class="topbar-brand">
-          <strong>VeriQ</strong>
+          <strong>SHARE Lens</strong>
           <span>Quality. Intelligence. Action.</span>
         </div>
 
@@ -440,7 +440,7 @@ function evaluationsPage() {
         <span class="section-label">AGENTIC QUALITY</span>
         <h3>Analyse Demo Interaction</h3>
         <p>
-          Run the VeriQ specialist agents against interaction INT-1001.
+          Run the SHARE Lens specialist agents against interaction INT-1001.
         </p>
       </div>
 
@@ -787,7 +787,7 @@ function testingPage() {
       <span class="section-label">COMING SOON</span>
       <h1>Testing & Certification</h1>
       <p class="content-subtitle">
-        VeriQ testing and certification capability is reserved for a future phase.
+        SHARE Lens testing and certification capability is reserved for a future phase.
       </p>
     </div>
 
@@ -950,7 +950,7 @@ function showEvaluationDetail() {
     <section class="placeholder-card agent-area">
 
       <div class="section-header">
-        <span class="section-label">VERIQ ANALYSIS</span>
+        <span class="section-label">SHARE Lens ANALYSIS</span>
         <h3>Agent Analysis</h3>
         <p>
           Review the specialist-agent findings for this interaction.
@@ -1206,12 +1206,12 @@ function showAgentResult(title, result) {
     return;
   }
 
-  if (title === "Combined VeriQ Analysis") {
+  if (title === "Combined SHARE Lens Analysis") {
     output.innerHTML = `
       <div class="result-header">
 
         <div>
-          <span class="section-label">VERIQ ANALYSIS</span>
+          <span class="section-label">SHARE Lens ANALYSIS</span>
           <h3>${result.finalStatus}</h3>
         </div>
 
@@ -1367,13 +1367,13 @@ function runAllAgents() {
 
       <div class="pipeline-header">
         <span class="section-label">
-          VERIQ AGENT ORCHESTRATION
+          SHARE Lens AGENT ORCHESTRATION
         </span>
 
         <h3>Running quality analysis</h3>
 
         <p>
-          VeriQ is evaluating the interaction across multiple specialist agents.
+          SHARE Lens is evaluating the interaction across multiple specialist agents.
         </p>
       </div>
 
@@ -1511,7 +1511,7 @@ function runAllAgents() {
     activateStep(
       "result",
       "Combining agent results...",
-      "VeriQ is consolidating findings and recommendations."
+      "SHARE Lens is consolidating findings and recommendations."
     );
   }, 4000);
 
@@ -1519,7 +1519,7 @@ function runAllAgents() {
     completeStep("result", "Analysis complete");
 
     showAgentResult(
-      "Combined VeriQ Analysis",
+      "Combined SHARE Lens Analysis",
       analyseInteraction(demoInteraction)
     );
   }, 5200);
