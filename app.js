@@ -5,6 +5,9 @@ import { runComplianceCheck } from "./agents/complianceAgent.js";
 
 const app = document.getElementById("app");
 
+let currentRole = "user";
+let currentUserPage = "home";
+
 const demoInteraction = {
   id: "INT-1001",
   channel: "Voice",
@@ -28,6 +31,15 @@ Agent: It depends on the bank.
   `
 };
 
+const userPages = [
+  { id: "home", label: "Home" },
+  { id: "evaluations", label: "My Evaluations" },
+  { id: "coaching", label: "Coaching & Development" },
+  { id: "knowledge", label: "Knowledge & SOP" },
+  { id: "actions", label: "My Actions" },
+  { id: "testing", label: "Testing & Certification" }
+];
+
 function topBar() {
   return `
     <header class="topbar">
@@ -45,32 +57,44 @@ function topBar() {
 
       </div>
 
-      <button
-        class="signout"
-        onclick="location.reload()"
-      >
-        Sign out
-      </button>
+      <div class="user-header">
+
+        <div class="user-details">
+          <strong>Layla Haddad</strong>
+          <span>Customer Service Agent · Entertainment</span>
+        </div>
+
+        <button
+          class="signout"
+          onclick="location.reload()"
+        >
+          Sign out
+        </button>
+
+      </div>
 
     </header>
   `;
 }
 
-function sidebar(items) {
+function userSidebar() {
   return `
     <aside class="sidebar">
 
       <div class="sidebar-title">
-        Workspace
+        My Workspace
       </div>
 
-      ${items
+      ${userPages
         .map(
-          (item, index) => `
+          page => `
             <div
-              class="nav-item ${index === 0 ? "active" : ""}"
+              class="nav-item ${
+                currentUserPage === page.id ? "active" : ""
+              }"
+              onclick="showUserPage('${page.id}')"
             >
-              ${item}
+              ${page.label}
             </div>
           `
         )
@@ -80,60 +104,347 @@ function sidebar(items) {
   `;
 }
 
-function agentPanel() {
+function userShell(content) {
+  app.innerHTML = `
+    <div class="workspace">
+
+      ${topBar()}
+
+      <div class="workspace-body">
+
+        ${userSidebar()}
+
+        <main class="content">
+          ${content}
+        </main>
+
+      </div>
+
+    </div>
+  `;
+}
+
+function userHome() {
   return `
-    <section class="placeholder-card">
+    <div class="page-heading">
+      <span class="section-label">MY QUALITY</span>
+      <h1>Good morning, Layla</h1>
+      <p class="content-subtitle">
+        Here is your latest quality performance and development activity.
+      </p>
+    </div>
+
+    <div class="dashboard-grid four">
+
+      <div class="dashboard-card metric-card">
+        <span>My Quality Score</span>
+        <strong>86%</strong>
+        <small class="positive">↑ 4% vs last month</small>
+      </div>
+
+      <div class="dashboard-card metric-card">
+        <span>SOP Compliance</span>
+        <strong>92%</strong>
+        <small class="positive">↑ 3%</small>
+      </div>
+
+      <div class="dashboard-card metric-card">
+        <span>Evaluations</span>
+        <strong>12</strong>
+        <small>this month</small>
+      </div>
+
+      <div class="dashboard-card metric-card">
+        <span>Open Actions</span>
+        <strong>2</strong>
+        <small>1 due soon</small>
+      </div>
+
+    </div>
+
+    <div class="dashboard-grid two">
+
+      <section class="dashboard-card">
+
+        <div class="card-heading">
+          <div>
+            <span class="section-label">PERFORMANCE</span>
+            <h3>My Quality Trend</h3>
+          </div>
+        </div>
+
+        <div class="simple-chart">
+
+          <div style="height:55%">
+            <span>82%</span>
+          </div>
+
+          <div style="height:62%">
+            <span>84%</span>
+          </div>
+
+          <div style="height:67%">
+            <span>85%</span>
+          </div>
+
+          <div style="height:73%">
+            <span>87%</span>
+          </div>
+
+          <div style="height:70%">
+            <span>86%</span>
+          </div>
+
+        </div>
+
+        <div class="chart-labels">
+          <span>May</span>
+          <span>Jun</span>
+          <span>Jul</span>
+          <span>Aug</span>
+          <span>Sep</span>
+        </div>
+
+      </section>
+
+      <section class="dashboard-card">
+
+        <div class="card-heading">
+          <div>
+            <span class="section-label">DEVELOPMENT</span>
+            <h3>Assigned Coaching</h3>
+          </div>
+
+          <button
+            class="text-button"
+            onclick="showUserPage('coaching')"
+          >
+            View all
+          </button>
+        </div>
+
+        <div class="list-item">
+          <div>
+            <strong>Refund SLA Communication</strong>
+            <p>
+              Improve explanation of refund timelines.
+            </p>
+          </div>
+
+          <span class="badge amber">
+            Due 12 Oct
+          </span>
+        </div>
+
+      </section>
+
+    </div>
+
+    <div class="dashboard-grid two">
+
+      <section class="dashboard-card">
+
+        <div class="card-heading">
+          <div>
+            <span class="section-label">RECENT ACTIVITY</span>
+            <h3>Recent Evaluations</h3>
+          </div>
+
+          <button
+            class="text-button"
+            onclick="showUserPage('evaluations')"
+          >
+            View all
+          </button>
+        </div>
+
+        ${evaluationList(false)}
+
+      </section>
+
+      <section class="dashboard-card">
+
+        <div class="card-heading">
+          <div>
+            <span class="section-label">ACTIONS</span>
+            <h3>My Actions</h3>
+          </div>
+
+          <button
+            class="text-button"
+            onclick="showUserPage('actions')"
+          >
+            View all
+          </button>
+        </div>
+
+        <div class="list-item">
+          <div>
+            <strong>Review Refund SOP</strong>
+            <p>Assigned following evaluation INT-1001.</p>
+          </div>
+
+          <span class="badge red">
+            Due 9 Oct
+          </span>
+        </div>
+
+        <div class="list-item">
+          <div>
+            <strong>Acknowledge Policy Update</strong>
+            <p>Cancellation & Refund Policy v3.</p>
+          </div>
+
+          <span class="badge">
+            Open
+          </span>
+        </div>
+
+      </section>
+
+    </div>
+
+    <section class="dashboard-card testing-preview">
+
+      <div>
+        <span class="section-label">COMING SOON</span>
+        <h3>Testing & Certification</h3>
+        <p>
+          Periodic assessments, targeted remediation and certifications
+          will be available here.
+        </p>
+      </div>
+
+      <span class="coming-soon">
+        Coming Soon
+      </span>
+
+    </section>
+  `;
+}
+
+function evaluationList(includeActions = true) {
+  return `
+    <div class="evaluation-row">
+
+      <div>
+        <strong>INT-1001 · Refund</strong>
+        <p>Voice · VOX Cinemas</p>
+      </div>
+
+      <span class="score-pill amber">
+        89%
+      </span>
+
+      <span class="evaluation-status">
+        Needs Improvement
+      </span>
+
+      ${
+        includeActions
+          ? `
+            <button
+              class="small-button"
+              onclick="showEvaluationDetail()"
+            >
+              View Details
+            </button>
+          `
+          : ""
+      }
+
+    </div>
+
+    <div class="evaluation-row">
+
+      <div>
+        <strong>INT-0998 · Loyalty Points</strong>
+        <p>Chat · SHARE</p>
+      </div>
+
+      <span class="score-pill green">
+        94%
+      </span>
+
+      <span class="evaluation-status">
+        Pass
+      </span>
+
+      ${
+        includeActions
+          ? `
+            <button class="small-button">
+              View Details
+            </button>
+          `
+          : ""
+      }
+
+    </div>
+
+    <div class="evaluation-row">
+
+      <div>
+        <strong>INT-0984 · Booking Change</strong>
+        <p>Voice · VOX Cinemas</p>
+      </div>
+
+      <span class="score-pill green">
+        91%
+      </span>
+
+      <span class="evaluation-status">
+        Pass
+      </span>
+
+      ${
+        includeActions
+          ? `
+            <button class="small-button">
+              View Details
+            </button>
+          `
+          : ""
+      }
+
+    </div>
+  `;
+}
+
+function evaluationsPage() {
+  return `
+    <div class="page-heading">
+      <span class="section-label">MY QUALITY</span>
+      <h1>My Evaluations</h1>
+      <p class="content-subtitle">
+        Review your completed quality evaluations and detailed findings.
+      </p>
+    </div>
+
+    <section class="dashboard-card">
+
+      <div class="card-heading">
+        <div>
+          <h3>Evaluation History</h3>
+          <p>12 evaluations completed this month.</p>
+        </div>
+      </div>
+
+      ${evaluationList(true)}
+
+    </section>
+
+    <section class="placeholder-card agent-area">
 
       <div class="section-header">
-        <div>
-          <span class="section-label">AGENTIC QUALITY</span>
-          <h3>VeriQ AI Agents</h3>
-          <p>
-            Run one or more quality agents against the demo interaction.
-          </p>
-        </div>
+        <span class="section-label">AGENTIC QUALITY</span>
+        <h3>Analyse Demo Interaction</h3>
+        <p>
+          Run the VeriQ specialist agents against interaction INT-1001.
+        </p>
       </div>
 
-      <div class="interaction-card">
-
-        <div class="interaction-top">
-
-          <div>
-            <span class="interaction-label">Demo Interaction</span>
-            <h4>${demoInteraction.id}</h4>
-          </div>
-
-          <span class="channel-badge">
-            ${demoInteraction.channel}
-          </span>
-
-        </div>
-
-        <div class="interaction-grid">
-
-          <div>
-            <span>Agent</span>
-            <strong>${demoInteraction.agent}</strong>
-          </div>
-
-          <div>
-            <span>Customer</span>
-            <strong>${demoInteraction.customer}</strong>
-          </div>
-
-          <div>
-            <span>Process</span>
-            <strong>${demoInteraction.process}</strong>
-          </div>
-
-          <div>
-            <span>Brand</span>
-            <strong>${demoInteraction.brand}</strong>
-          </div>
-
-        </div>
-
-      </div>
+      ${interactionCard()}
 
       <div class="agent-buttons">
 
@@ -169,32 +480,47 @@ function agentPanel() {
   `;
 }
 
-function workspace(title, subtitle, items) {
-  app.innerHTML = `
+function interactionCard() {
+  return `
+    <div class="interaction-card">
 
-    <div class="workspace">
+      <div class="interaction-top">
 
-      ${topBar()}
+        <div>
+          <span class="interaction-label">
+            Demo Interaction
+          </span>
 
-      <div class="workspace-body">
+          <h4>${demoInteraction.id}</h4>
+        </div>
 
-        ${sidebar(items)}
+        <span class="channel-badge">
+          ${demoInteraction.channel}
+        </span>
 
-        <main class="content">
+      </div>
 
-          <div class="page-heading">
+      <div class="interaction-grid">
 
-            <h1>${title}</h1>
+        <div>
+          <span>Agent</span>
+          <strong>${demoInteraction.agent}</strong>
+        </div>
 
-            <p class="content-subtitle">
-              ${subtitle}
-            </p>
+        <div>
+          <span>Customer</span>
+          <strong>${demoInteraction.customer}</strong>
+        </div>
 
-          </div>
+        <div>
+          <span>Process</span>
+          <strong>${demoInteraction.process}</strong>
+        </div>
 
-          ${agentPanel()}
-
-        </main>
+        <div>
+          <span>Brand</span>
+          <strong>${demoInteraction.brand}</strong>
+        </div>
 
       </div>
 
@@ -202,56 +528,469 @@ function workspace(title, subtitle, items) {
   `;
 }
 
+function coachingPage() {
+  return `
+    <div class="page-heading">
+      <span class="section-label">MY DEVELOPMENT</span>
+      <h1>Coaching & Development</h1>
+      <p class="content-subtitle">
+        Coaching assigned from quality findings and development opportunities.
+      </p>
+    </div>
+
+    <section class="dashboard-card coaching-card">
+
+      <div class="coaching-header">
+
+        <div>
+          <span class="badge amber">
+            Assigned
+          </span>
+
+          <h2>Refund SLA Communication</h2>
+
+          <p>
+            Improve clarity when explaining refund processing timelines
+            to customers.
+          </p>
+        </div>
+
+        <div class="coaching-score">
+          <span>Related score</span>
+          <strong>86%</strong>
+        </div>
+
+      </div>
+
+      <div class="coaching-section">
+
+        <h4>Why this was assigned</h4>
+
+        <p>
+          Interaction INT-1001 identified that the expected refund
+          timeframe was not clearly explained when the customer asked
+          how long the refund would take.
+        </p>
+
+      </div>
+
+      <div class="coaching-section">
+
+        <h4>Recommended development</h4>
+
+        <ul>
+          <li>Review the latest Refund Process SOP.</li>
+          <li>Review approved refund SLA messaging.</li>
+          <li>Complete manager coaching discussion.</li>
+        </ul>
+
+      </div>
+
+      <div class="coaching-footer">
+
+        <span>
+          Due 12 October 2026
+        </span>
+
+        <button class="primary-small">
+          Start Coaching
+        </button>
+
+      </div>
+
+    </section>
+  `;
+}
+
+function knowledgePage() {
+  return `
+    <div class="page-heading">
+      <span class="section-label">KNOWLEDGE</span>
+      <h1>Knowledge & SOP</h1>
+      <p class="content-subtitle">
+        Approved guidance and procedures relevant to your role.
+      </p>
+    </div>
+
+    <div class="dashboard-grid two">
+
+      <section class="dashboard-card">
+
+        <div class="card-heading">
+          <div>
+            <h3>Relevant to Me</h3>
+            <p>Frequently used procedures.</p>
+          </div>
+        </div>
+
+        ${knowledgeItem(
+          "Refund Process",
+          "SOP",
+          "Updated 2 Oct 2026"
+        )}
+
+        ${knowledgeItem(
+          "Customer Verification",
+          "SOP",
+          "Updated 19 Sep 2026"
+        )}
+
+        ${knowledgeItem(
+          "Cancellation Policy",
+          "Policy",
+          "Updated 12 Sep 2026"
+        )}
+
+        ${knowledgeItem(
+          "Escalation Handling",
+          "SOP",
+          "Updated 28 Aug 2026"
+        )}
+
+      </section>
+
+      <section class="dashboard-card">
+
+        <div class="card-heading">
+          <div>
+            <h3>Recently Updated</h3>
+            <p>Changes that may affect your work.</p>
+          </div>
+        </div>
+
+        <div class="knowledge-update">
+
+          <span class="badge red">
+            Updated
+          </span>
+
+          <h4>Refund Process v3</h4>
+
+          <p>
+            Refund timeline guidance has been updated.
+          </p>
+
+          <button class="small-button">
+            Review Update
+          </button>
+
+        </div>
+
+      </section>
+
+    </div>
+  `;
+}
+
+function knowledgeItem(title, type, updated) {
+  return `
+    <div class="knowledge-item">
+
+      <div>
+        <strong>${title}</strong>
+        <p>${type} · ${updated}</p>
+      </div>
+
+      <button class="small-button">
+        Open
+      </button>
+
+    </div>
+  `;
+}
+
+function actionsPage() {
+  return `
+    <div class="page-heading">
+      <span class="section-label">MY WORK</span>
+      <h1>My Actions</h1>
+      <p class="content-subtitle">
+        Actions assigned to you from evaluations, coaching and policy updates.
+      </p>
+    </div>
+
+    <section class="dashboard-card">
+
+      <div class="action-row">
+
+        <div class="action-marker urgent"></div>
+
+        <div class="action-content">
+          <strong>Review Refund SOP</strong>
+          <p>
+            Review Refund Process v3 following evaluation INT-1001.
+          </p>
+        </div>
+
+        <span class="badge red">
+          Due 9 Oct
+        </span>
+
+        <button class="small-button">
+          Open
+        </button>
+
+      </div>
+
+      <div class="action-row">
+
+        <div class="action-marker"></div>
+
+        <div class="action-content">
+          <strong>Complete Coaching</strong>
+          <p>
+            Refund SLA Communication coaching assignment.
+          </p>
+        </div>
+
+        <span class="badge amber">
+          Due 12 Oct
+        </span>
+
+        <button
+          class="small-button"
+          onclick="showUserPage('coaching')"
+        >
+          Open
+        </button>
+
+      </div>
+
+      <div class="action-row">
+
+        <div class="action-marker"></div>
+
+        <div class="action-content">
+          <strong>Acknowledge Policy Update</strong>
+          <p>
+            Cancellation & Refund Policy v3.
+          </p>
+        </div>
+
+        <span class="badge">
+          Open
+        </span>
+
+        <button class="small-button">
+          Review
+        </button>
+
+      </div>
+
+    </section>
+  `;
+}
+
+function testingPage() {
+  return `
+    <div class="page-heading">
+      <span class="section-label">COMING SOON</span>
+      <h1>Testing & Certification</h1>
+      <p class="content-subtitle">
+        VeriQ testing and certification capability is reserved for a future phase.
+      </p>
+    </div>
+
+    <section class="dashboard-card coming-soon-page">
+
+      <div class="coming-icon">
+        VQ
+      </div>
+
+      <h2>Testing & Certification</h2>
+
+      <p>
+        This module will support periodic assessments,
+        targeted remediation and role-based certification.
+      </p>
+
+      <div class="future-features">
+
+        <span>Periodic assessments</span>
+        <span>Targeted remediation</span>
+        <span>Certification</span>
+        <span>Retesting</span>
+
+      </div>
+
+      <span class="coming-soon">
+        Coming Soon
+      </span>
+
+    </section>
+  `;
+}
+
+function showUserPage(page) {
+  currentRole = "user";
+  currentUserPage = page;
+
+  let content = "";
+
+  if (page === "home") {
+    content = userHome();
+  }
+
+  if (page === "evaluations") {
+    content = evaluationsPage();
+  }
+
+  if (page === "coaching") {
+    content = coachingPage();
+  }
+
+  if (page === "knowledge") {
+    content = knowledgePage();
+  }
+
+  if (page === "actions") {
+    content = actionsPage();
+  }
+
+  if (page === "testing") {
+    content = testingPage();
+  }
+
+  userShell(content);
+}
+
 function showUser() {
-  workspace(
-    "My Quality",
-    "Your performance, evaluations, coaching and development.",
-    [
-      "Home",
-      "My Evaluations",
-      "Coaching & Development",
-      "Knowledge & SOP",
-      "My Actions",
-      "Testing & Certification"
-    ]
-  );
+  currentUserPage = "home";
+  showUserPage("home");
 }
 
 function showManager() {
-  workspace(
-    "Team Quality",
-    "Monitor quality, identify opportunities and develop your team.",
-    [
-      "Home",
-      "Team Quality",
-      "Evaluations",
-      "Coaching",
-      "Quality Opportunities",
-      "Knowledge Gaps",
-      "Actions",
-      "Reports",
-      "Testing & Certification"
-    ]
-  );
+  app.innerHTML = `
+    <div class="workspace">
+      ${topBar()}
+
+      <main class="content">
+        <h1>Manager Workspace</h1>
+        <p>
+          Manager View will be built after the User View is complete.
+        </p>
+      </main>
+    </div>
+  `;
 }
 
 function showAdmin() {
-  workspace(
-    "Administration",
-    "Configure and manage the VeriQ platform.",
-    [
-      "Overview",
-      "Organisation",
-      "Identity & Access",
-      "Quality Configuration",
-      "SOP & Knowledge",
-      "AI Configuration",
-      "Workflow",
-      "Integrations",
-      "Testing & Certification",
-      "Platform"
-    ]
-  );
+  app.innerHTML = `
+    <div class="workspace">
+      ${topBar()}
+
+      <main class="content">
+        <h1>Administration</h1>
+        <p>
+          Admin View will be built after the Manager View.
+        </p>
+      </main>
+    </div>
+  `;
+}
+
+function showEvaluationDetail() {
+  currentUserPage = "evaluations";
+
+  userShell(`
+    <div class="page-heading">
+
+      <button
+        class="back-button"
+        onclick="showUserPage('evaluations')"
+      >
+        ← Back to evaluations
+      </button>
+
+      <span class="section-label">EVALUATION DETAIL</span>
+
+      <h1>INT-1001 · Refund</h1>
+
+      <p class="content-subtitle">
+        VOX Cinemas · Voice · ${demoInteraction.agent}
+      </p>
+
+    </div>
+
+    <section class="dashboard-card">
+
+      <div class="score-grid">
+
+        <div class="score-card">
+          <span>Overall Score</span>
+          <strong>89%</strong>
+        </div>
+
+        <div class="score-card">
+          <span>Evaluation</span>
+          <strong>86%</strong>
+        </div>
+
+        <div class="score-card">
+          <span>SOP Compliance</span>
+          <strong>80%</strong>
+        </div>
+
+        <div class="score-card">
+          <span>Compliance</span>
+          <strong>100%</strong>
+        </div>
+
+      </div>
+
+      <div class="recommendation-card">
+        <span>Recommended Action</span>
+        <strong>
+          Assign targeted coaching on refund timeline communication.
+        </strong>
+      </div>
+
+    </section>
+
+    <section class="placeholder-card agent-area">
+
+      <div class="section-header">
+        <span class="section-label">VERIQ ANALYSIS</span>
+        <h3>Agent Analysis</h3>
+        <p>
+          Review the specialist-agent findings for this interaction.
+        </p>
+      </div>
+
+      ${interactionCard()}
+
+      <div class="agent-buttons">
+
+        <button onclick="runEvaluationAgent()">
+          Evaluation Agent
+        </button>
+
+        <button onclick="runSopAgent()">
+          SOP Agent
+        </button>
+
+        <button onclick="runComplianceAgent()">
+          Compliance Agent
+        </button>
+
+        <button
+          class="run-all"
+          onclick="runAllAgents()"
+        >
+          Run All Agents
+        </button>
+
+      </div>
+
+      <div
+        id="agent-output"
+        class="agent-output empty-state"
+      >
+        Select an agent to view the detailed analysis.
+      </div>
+
+    </section>
+  `);
 }
 
 function showAgentResult(title, result) {
@@ -403,22 +1142,6 @@ function showAgentResult(title, result) {
           .join("")}
 
       </div>
-
-      <div class="result-section">
-        <h4>Missed SOP Steps</h4>
-
-        ${
-          result.missedSteps.length
-            ? `
-              <ul>
-                ${result.missedSteps
-                  .map(step => `<li>${step}</li>`)
-                  .join("")}
-              </ul>
-            `
-            : `<p>No missed SOP steps.</p>`
-        }
-      </div>
     `;
 
     return;
@@ -427,6 +1150,7 @@ function showAgentResult(title, result) {
   if (title === "Compliance Agent") {
     output.innerHTML = `
       <div class="result-header">
+
         <div>
           <span class="section-label">COMPLIANCE AGENT</span>
           <h3>${result.result}</h3>
@@ -435,6 +1159,7 @@ function showAgentResult(title, result) {
         <span class="result-status">
           ${result.complianceScore}%
         </span>
+
       </div>
 
       <div class="score-grid">
@@ -445,18 +1170,10 @@ function showAgentResult(title, result) {
         </div>
 
         <div class="score-card">
-          <span>Result</span>
-          <strong>${result.result}</strong>
-        </div>
-
-        <div class="score-card">
           <span>Critical Failure</span>
-          <strong>${result.criticalFailure ? "Yes" : "No"}</strong>
-        </div>
-
-        <div class="score-card">
-          <span>Interaction</span>
-          <strong>${result.interactionId}</strong>
+          <strong>
+            ${result.criticalFailure ? "Yes" : "No"}
+          </strong>
         </div>
 
       </div>
@@ -484,25 +1201,6 @@ function showAgentResult(title, result) {
           .join("")}
 
       </div>
-
-      ${
-        result.criticalFindings.length
-          ? `
-            <div class="recommendation-card">
-              <span>Critical Findings</span>
-
-              ${result.criticalFindings
-                .map(item => `<strong>${item}</strong>`)
-                .join("<br>")}
-            </div>
-          `
-          : `
-            <div class="recommendation-card">
-              <span>Critical Findings</span>
-              <strong>No critical compliance failures detected.</strong>
-            </div>
-          `
-      }
     `;
 
     return;
@@ -511,6 +1209,7 @@ function showAgentResult(title, result) {
   if (title === "Combined VeriQ Analysis") {
     output.innerHTML = `
       <div class="result-header">
+
         <div>
           <span class="section-label">VERIQ ANALYSIS</span>
           <h3>${result.finalStatus}</h3>
@@ -519,6 +1218,7 @@ function showAgentResult(title, result) {
         <span class="result-status">
           ${result.overallScore}%
         </span>
+
       </div>
 
       <div class="score-grid">
@@ -588,39 +1288,6 @@ function showAgentResult(title, result) {
             `
             : `<p>No missed SOP steps.</p>`
         }
-      </div>
-
-      <div class="result-section">
-        <h4>Compliance</h4>
-
-        <div class="finding-row">
-
-          <div>
-            <strong>
-              ${
-                result.compliance.criticalFailure
-                  ? "Critical compliance failure detected"
-                  : "No critical compliance failures"
-              }
-            </strong>
-
-            <p>
-              Compliance score:
-              ${result.compliance.complianceScore}%
-            </p>
-          </div>
-
-          <span class="finding-status ${
-            result.compliance.criticalFailure ? "fail" : "pass"
-          }">
-            ${
-              result.compliance.criticalFailure
-                ? "Fail"
-                : "Pass"
-            }
-          </span>
-
-        </div>
 
       </div>
 
@@ -629,8 +1296,6 @@ function showAgentResult(title, result) {
         <strong>${result.recommendedAction}</strong>
       </div>
     `;
-
-    return;
   }
 }
 
@@ -668,29 +1333,23 @@ function completeStep(stepName, statusText) {
 }
 
 function runEvaluationAgent() {
-  const result = runEvaluation(demoInteraction);
-
   showAgentResult(
     "Evaluation Agent",
-    result
+    runEvaluation(demoInteraction)
   );
 }
 
 function runSopAgent() {
-  const result = runSopCheck(demoInteraction);
-
   showAgentResult(
     "SOP Agent",
-    result
+    runSopCheck(demoInteraction)
   );
 }
 
 function runComplianceAgent() {
-  const result = runComplianceCheck(demoInteraction);
-
   showAgentResult(
     "Compliance Agent",
-    result
+    runComplianceCheck(demoInteraction)
   );
 }
 
@@ -707,8 +1366,12 @@ function runAllAgents() {
     <div class="agent-pipeline">
 
       <div class="pipeline-header">
-        <span class="section-label">VERIQ AGENT ORCHESTRATION</span>
+        <span class="section-label">
+          VERIQ AGENT ORCHESTRATION
+        </span>
+
         <h3>Running quality analysis</h3>
+
         <p>
           VeriQ is evaluating the interaction across multiple specialist agents.
         </p>
@@ -716,71 +1379,101 @@ function runAllAgents() {
 
       <div class="pipeline-steps">
 
-        <div class="pipeline-step active" id="step-interaction">
+        <div
+          class="pipeline-step active"
+          id="step-interaction"
+        >
           <div class="pipeline-icon">1</div>
+
           <div>
             <strong>Interaction</strong>
-            <span id="status-interaction">Preparing data...</span>
+            <span id="status-interaction">
+              Preparing data...
+            </span>
           </div>
         </div>
 
         <div class="pipeline-line"></div>
 
-        <div class="pipeline-step waiting" id="step-evaluation">
+        <div
+          class="pipeline-step waiting"
+          id="step-evaluation"
+        >
           <div class="pipeline-icon">2</div>
+
           <div>
             <strong>Evaluation Agent</strong>
-            <span id="status-evaluation">Waiting</span>
+            <span id="status-evaluation">
+              Waiting
+            </span>
           </div>
         </div>
 
         <div class="pipeline-line"></div>
 
-        <div class="pipeline-step waiting" id="step-sop">
+        <div
+          class="pipeline-step waiting"
+          id="step-sop"
+        >
           <div class="pipeline-icon">3</div>
+
           <div>
             <strong>SOP Agent</strong>
-            <span id="status-sop">Waiting</span>
+            <span id="status-sop">
+              Waiting
+            </span>
           </div>
         </div>
 
         <div class="pipeline-line"></div>
 
-        <div class="pipeline-step waiting" id="step-compliance">
+        <div
+          class="pipeline-step waiting"
+          id="step-compliance"
+        >
           <div class="pipeline-icon">4</div>
+
           <div>
             <strong>Compliance Agent</strong>
-            <span id="status-compliance">Waiting</span>
+            <span id="status-compliance">
+              Waiting
+            </span>
           </div>
         </div>
 
         <div class="pipeline-line"></div>
 
-        <div class="pipeline-step waiting" id="step-result">
+        <div
+          class="pipeline-step waiting"
+          id="step-result"
+        >
           <div class="pipeline-icon">5</div>
+
           <div>
             <strong>Combined Analysis</strong>
-            <span id="status-result">Waiting</span>
+            <span id="status-result">
+              Waiting
+            </span>
           </div>
         </div>
 
       </div>
 
       <div class="pipeline-footer">
+
         <div class="processing-dot"></div>
+
         <span id="pipeline-message">
           Preparing interaction for analysis...
         </span>
+
       </div>
 
     </div>
   `;
 
   setTimeout(() => {
-    completeStep(
-      "interaction",
-      "Interaction ready"
-    );
+    completeStep("interaction", "Interaction ready");
 
     activateStep(
       "evaluation",
@@ -790,10 +1483,7 @@ function runAllAgents() {
   }, 700);
 
   setTimeout(() => {
-    completeStep(
-      "evaluation",
-      "Evaluation complete"
-    );
+    completeStep("evaluation", "Evaluation complete");
 
     activateStep(
       "sop",
@@ -803,10 +1493,7 @@ function runAllAgents() {
   }, 1800);
 
   setTimeout(() => {
-    completeStep(
-      "sop",
-      "SOP review complete"
-    );
+    completeStep("sop", "SOP review complete");
 
     activateStep(
       "compliance",
@@ -829,27 +1516,21 @@ function runAllAgents() {
   }, 4000);
 
   setTimeout(() => {
-    completeStep(
-      "result",
-      "Analysis complete"
-    );
-
-    const result = analyseInteraction(demoInteraction);
+    completeStep("result", "Analysis complete");
 
     showAgentResult(
       "Combined VeriQ Analysis",
-      result
+      analyseInteraction(demoInteraction)
     );
   }, 5200);
 }
 
-const demoResult = analyseInteraction(demoInteraction);
-
-console.log("VeriQ Agent Result:", demoResult);
-
 window.showUser = showUser;
 window.showManager = showManager;
 window.showAdmin = showAdmin;
+
+window.showUserPage = showUserPage;
+window.showEvaluationDetail = showEvaluationDetail;
 
 window.runEvaluationAgent = runEvaluationAgent;
 window.runSopAgent = runSopAgent;
